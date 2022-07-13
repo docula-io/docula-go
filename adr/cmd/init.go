@@ -1,10 +1,15 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
-func initCmd() *cobra.Command {
+type initHandler func(ctx context.Context, path string) error
+
+func initCmd(handler initHandler) *cobra.Command {
 	initCmd := &cobra.Command{
 		Use:   "init <path>",
 		Short: "Sets up a directory as an ADR directory.",
@@ -13,6 +18,12 @@ func initCmd() *cobra.Command {
 			"the directory for the user.",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			path := args[0]
+
+			if err := handler(cmd.Context(), path); err != nil {
+				return fmt.Errorf("init handler: %w", err)
+			}
+
 			return nil
 		},
 	}
