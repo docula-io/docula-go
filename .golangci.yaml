@@ -691,6 +691,7 @@ issues:
         - goconst
         - gosec
         - funlen
+        - gocognit
 
     # Exclude known linters from partially hard-vendored code,
     # which is impossible to exclude via "nolint" comments.
