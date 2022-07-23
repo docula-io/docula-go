@@ -431,3 +431,87 @@ func TestManagerNormalizePath(t *testing.T) {
 		})
 	}
 }
+
+func TestManagerStateDirPath(t *testing.T) {
+	type want struct {
+		path string
+		err  bool
+	}
+
+	testCases := []struct {
+		name  string
+		setup func(ctrl *gomock.Controller) state.FileSystem
+		wants want
+	}{
+		{
+			name:  "happy path",
+			setup: setupFs("/home/foo/bar"),
+			wants: want{
+				path: "/home/foo/bar/",
+			},
+		},
+		{
+			name:  "happy path v2",
+			setup: setupFs("/home/docula"),
+			wants: want{
+				path: "/home/docula/",
+			},
+		},
+		{
+			name: "missing .docula",
+			setup: func(ctrl *gomock.Controller) state.FileSystem {
+				fs := state.NewmockFileSystem(ctrl)
+				fs.EXPECT().Getwd().Return("/", nil)
+				fs.EXPECT().Stat("/.docula").Return(nil, os.ErrNotExist)
+				return fs
+			},
+			wants: want{
+				path: "/",
+			},
+		},
+		{
+			name: "err loading file stat",
+			setup: func(ctrl *gomock.Controller) state.FileSystem {
+				fs := state.NewmockFileSystem(ctrl)
+				fs.EXPECT().Getwd().Return("/", nil)
+				fs.EXPECT().Stat("/.docula").Return(nil, os.ErrInvalid)
+				return fs
+			},
+			wants: want{
+				err: true,
+			},
+		},
+		{
+			name: "err getting cwd",
+			setup: func(ctrl *gomock.Controller) state.FileSystem {
+				fs := state.NewmockFileSystem(ctrl)
+				fs.EXPECT().Getwd().Return("", os.ErrInvalid)
+				return fs
+			},
+			wants: want{
+				err: true,
+			},
+		},
+	}
+
+	for _, tt := range testCases {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			fs := tt.setup(ctrl)
+			manager := state.NewManager(state.WithFileSystem(fs))
+
+			res, err := manager.StateDir()
+			if tt.wants.err {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			assert.Equal(t, tt.wants.path, res)
+		})
+	}
+}

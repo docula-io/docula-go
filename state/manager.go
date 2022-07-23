@@ -40,7 +40,7 @@ func NewManager(opts ...Option) *Manager {
 func (m *Manager) Save(state State) error {
 	path, err := m.obtainStatePath()
 	if err != nil {
-		return fmt.Errorf("ontaining state path: %w", err)
+		return fmt.Errorf("obtaining state path: %w", err)
 	}
 
 	data, err := yaml.Marshal(state)
@@ -87,8 +87,6 @@ func (m *Manager) Load() (State, error) {
 	if err != nil {
 		return State{}, fmt.Errorf("reading .docula: %w", err)
 	}
-
-	fmt.Println(string(data))
 
 	var res State
 
@@ -140,7 +138,7 @@ func (m *Manager) obtainStatePath() (string, error) {
 
 	path, err := m.getPathFrom(cwd)
 	if errors.Is(err, ErrNotFound) {
-		return cwd, nil
+		return fmt.Sprintf("%s/.docula", strings.TrimSuffix(cwd, "/")), nil
 	} else if err != nil {
 		return "", fmt.Errorf("get path from cwd: %w", err)
 	}
@@ -182,4 +180,15 @@ func (m *Manager) NormalizePath(path string) (string, error) {
 	}
 
 	return strings.Replace(resolvedPath, filePath+"/", "", 1), nil
+}
+
+// StateDir returns the dir of the state file if it exists. If not state
+// file does exist, then the current working directory will be returned.
+func (m *Manager) StateDir() (string, error) {
+	p, err := m.obtainStatePath()
+	if err != nil {
+		return "", fmt.Errorf("obtain state path: %w", err)
+	}
+
+	return strings.TrimSuffix(p, ".docula"), nil
 }
