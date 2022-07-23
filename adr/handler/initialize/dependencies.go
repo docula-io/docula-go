@@ -3,8 +3,6 @@
 package initialize
 
 import (
-	"os"
-
 	"github.com/docula-io/docula/state"
 )
 
@@ -20,5 +18,5 @@ type StateManager interface {
 // This interface is typically a wrapper around the os package methods and
 // is used to allow for improved testing.
 type FileSystem interface {
-	Mkdir(name string, perm os.FileMode) error
+	Mkdir(name string) error
 }

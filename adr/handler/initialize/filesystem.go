@@ -4,6 +4,7 @@ import "os"
 
 type defaultFileSystem struct{}
 
-func (f *defaultFileSystem) Mkdir(name string, perms os.FileMode) error {
-	return os.Mkdir(name, perms)
+func (f *defaultFileSystem) Mkdir(name string) error {
+	const dirPerms = os.FileMode(0755)
+	return os.MkdirAll(name, 0755)
 }

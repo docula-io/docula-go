@@ -47,7 +47,7 @@ func TestHandler(t *testing.T) {
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
-					fs.EXPECT().Mkdir("/foo/bar", os.FileMode(0644)).Return(nil)
+					fs.EXPECT().Mkdir("/foo/bar").Return(nil)
 					return fs
 				},
 			},
@@ -91,7 +91,7 @@ func TestHandler(t *testing.T) {
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
-					fs.EXPECT().Mkdir("/foo/bar", os.FileMode(0644)).Return(nil)
+					fs.EXPECT().Mkdir("/foo/bar").Return(nil)
 					return fs
 				},
 			},
@@ -120,7 +120,7 @@ func TestHandler(t *testing.T) {
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
-					fs.EXPECT().Mkdir("/home/me/projects/baz/foo", os.FileMode(0644)).Return(nil)
+					fs.EXPECT().Mkdir("/home/me/projects/baz/foo").Return(nil)
 					return fs
 				},
 			},
@@ -149,7 +149,7 @@ func TestHandler(t *testing.T) {
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
-					fs.EXPECT().Mkdir("/home/me/projects/baz/foo", os.FileMode(0644)).Return(nil)
+					fs.EXPECT().Mkdir("/home/me/projects/baz/foo").Return(nil)
 					return fs
 				},
 			},
@@ -245,7 +245,7 @@ func TestHandler(t *testing.T) {
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
-					fs.EXPECT().Mkdir("/home/user/foo", os.FileMode(0644)).Return(os.ErrInvalid)
+					fs.EXPECT().Mkdir("/home/user/foo").Return(os.ErrInvalid)
 					return fs
 				},
 			},
@@ -274,7 +274,7 @@ func TestHandler(t *testing.T) {
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
-					fs.EXPECT().Mkdir("/home/user/foo", os.FileMode(0644)).Return(os.ErrExist)
+					fs.EXPECT().Mkdir("/home/user/foo").Return(os.ErrExist)
 					return fs
 				},
 			},
@@ -302,7 +302,7 @@ func TestHandler(t *testing.T) {
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
-					fs.EXPECT().Mkdir("/home/user/foo", os.FileMode(0644)).Return(nil)
+					fs.EXPECT().Mkdir("/home/user/foo").Return(nil)
 					return fs
 				},
 			},

@@ -64,7 +64,7 @@ func (h *Handler) Handle(ctx context.Context, path string) error {
 	absPath := fmt.Sprintf("%s%s", stateDir, path)
 
 	// Create path if not exists
-	if err = h.fs.Mkdir(absPath, 0644); err != nil && !errors.Is(err, os.ErrExist) {
+	if err = h.fs.Mkdir(absPath); err != nil && !errors.Is(err, os.ErrExist) {
 		return fmt.Errorf("create adr dir: %w", err)
 	}
 

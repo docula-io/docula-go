@@ -17,7 +17,7 @@ func TestRootCommand(t *testing.T) {
 		{
 			name: "should have an init command",
 			args: []string{
-				"init", "help",
+				"init", "--help",
 			},
 		},
 		{

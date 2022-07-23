@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"context"
-
 	"github.com/spf13/cobra"
+
+	"github.com/docula-io/docula/adr/handler/initialize"
 )
 
 // RootCmd produces the root for the adr command tree.
@@ -15,7 +15,9 @@ func RootCmd() *cobra.Command {
 		Version: "0.1.0",
 	}
 
-	rootCmd.AddCommand(initCmd(func(ctx context.Context, path string) error { return nil }))
+	initHandler := initialize.New()
+
+	rootCmd.AddCommand(initCmd(initHandler.Handle))
 
 	return rootCmd
 }

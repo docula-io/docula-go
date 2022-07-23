@@ -5,7 +5,6 @@
 package initialize
 
 import (
-	os "os"
 	reflect "reflect"
 
 	state "github.com/docula-io/docula/state"
@@ -118,15 +117,15 @@ func (m *mockFileSystem) EXPECT() *mockFileSystemMockRecorder {
 }
 
 // Mkdir mocks base method.
-func (m *mockFileSystem) Mkdir(name string, perm os.FileMode) error {
+func (m *mockFileSystem) Mkdir(name string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Mkdir", name, perm)
+	ret := m.ctrl.Call(m, "Mkdir", name)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Mkdir indicates an expected call of Mkdir.
-func (mr *mockFileSystemMockRecorder) Mkdir(name, perm interface{}) *gomock.Call {
+func (mr *mockFileSystemMockRecorder) Mkdir(name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Mkdir", reflect.TypeOf((*mockFileSystem)(nil).Mkdir), name, perm)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Mkdir", reflect.TypeOf((*mockFileSystem)(nil).Mkdir), name)
 }
