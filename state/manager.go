@@ -1,6 +1,7 @@
 package state
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
@@ -43,10 +44,16 @@ func (m *Manager) Save(state State) error {
 		return fmt.Errorf("obtaining state path: %w", err)
 	}
 
-	data, err := yaml.Marshal(state)
-	if err != nil {
+	buffer := &bytes.Buffer{}
+	encoder := yaml.NewEncoder(buffer)
+
+	encoder.SetIndent(2)
+
+	if err = encoder.Encode(state); err != nil {
 		return fmt.Errorf("marshal yaml: %w", err)
 	}
+
+	data := buffer.Bytes()
 
 	tmpPath := fmt.Sprintf("%s.tmp", path)
 

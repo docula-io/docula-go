@@ -40,7 +40,7 @@ func TestManagerSave(t *testing.T) {
 				f := state.NewmockFile(ctrl)
 				fs.EXPECT().Create("/.docula.tmp").Return(f, nil)
 
-				expects := "adr:\n    dirs: []\n"
+				expects := "adr:\n  dirs: []\n"
 
 				gomock.InOrder(
 					f.EXPECT().Write([]byte(expects)).Return(0, nil),
@@ -63,7 +63,7 @@ func TestManagerSave(t *testing.T) {
 				f := state.NewmockFile(ctrl)
 				fs.EXPECT().Create("/.docula.tmp").Return(f, nil)
 
-				expects := "adr:\n    dirs: []\n"
+				expects := "adr:\n  dirs: []\n"
 
 				gomock.InOrder(
 					f.EXPECT().Write([]byte(expects)).Return(0, nil),
@@ -102,7 +102,7 @@ func TestManagerSave(t *testing.T) {
 				f := state.NewmockFile(ctrl)
 				fs.EXPECT().Create("/.docula.tmp").Return(f, nil)
 
-				expects := "adr:\n    dirs: []\n"
+				expects := "adr:\n  dirs: []\n"
 
 				gomock.InOrder(
 					f.EXPECT().Write([]byte(expects)).Return(0, os.ErrInvalid),
@@ -125,7 +125,7 @@ func TestManagerSave(t *testing.T) {
 				f := state.NewmockFile(ctrl)
 				fs.EXPECT().Create("/.docula.tmp").Return(f, nil)
 
-				expects := "adr:\n    dirs: []\n"
+				expects := "adr:\n  dirs: []\n"
 
 				gomock.InOrder(
 					f.EXPECT().Write([]byte(expects)).Return(0, nil),
@@ -149,7 +149,7 @@ func TestManagerSave(t *testing.T) {
 				f := state.NewmockFile(ctrl)
 				fs.EXPECT().Create("/.docula.tmp").Return(f, nil)
 
-				expects := "adr:\n    dirs: []\n"
+				expects := "adr:\n  dirs: []\n"
 
 				gomock.InOrder(
 					f.EXPECT().Write([]byte(expects)).Return(0, nil),
