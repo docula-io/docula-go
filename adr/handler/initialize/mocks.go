@@ -7,6 +7,7 @@ package initialize
 import (
 	reflect "reflect"
 
+	v2 "github.com/AlecAivazis/survey/v2"
 	state "github.com/docula-io/docula/state"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -128,4 +129,46 @@ func (m *mockFileSystem) Mkdir(name string) error {
 func (mr *mockFileSystemMockRecorder) Mkdir(name interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Mkdir", reflect.TypeOf((*mockFileSystem)(nil).Mkdir), name)
+}
+
+// mockSurvey is a mock of Survey interface.
+type mockSurvey struct {
+	ctrl     *gomock.Controller
+	recorder *mockSurveyMockRecorder
+}
+
+// mockSurveyMockRecorder is the mock recorder for mockSurvey.
+type mockSurveyMockRecorder struct {
+	mock *mockSurvey
+}
+
+// NewmockSurvey creates a new mock instance.
+func NewmockSurvey(ctrl *gomock.Controller) *mockSurvey {
+	mock := &mockSurvey{ctrl: ctrl}
+	mock.recorder = &mockSurveyMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *mockSurvey) EXPECT() *mockSurveyMockRecorder {
+	return m.recorder
+}
+
+// Ask mocks base method.
+func (m *mockSurvey) Ask(opts ...v2.AskOpt) (Configuration, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Ask", varargs...)
+	ret0, _ := ret[0].(Configuration)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Ask indicates an expected call of Ask.
+func (mr *mockSurveyMockRecorder) Ask(opts ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ask", reflect.TypeOf((*mockSurvey)(nil).Ask), opts...)
 }

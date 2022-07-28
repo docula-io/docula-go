@@ -17,3 +17,10 @@ func WithStateManager(sm StateManager) Option {
 		h.stateManager = sm
 	}
 }
+
+// WithSurvey is used to override the internal Survey of the handler.
+func WithSurvey(survey Survey) Option {
+	return func(h *Handler) {
+		h.survey = survey
+	}
+}

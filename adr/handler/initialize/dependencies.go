@@ -1,8 +1,10 @@
-//go:generate mockgen -source=dependencies.go -destination=./mocks.go -package=initialize -mock_names FileSystem=mockFileSystem,StateManager=mockStateManager
+//go:generate mockgen -source=dependencies.go -destination=./mocks.go -package=initialize -mock_names FileSystem=mockFileSystem,StateManager=mockStateManager,Survey=mockSurvey
 
 package initialize
 
 import (
+	survey "github.com/AlecAivazis/survey/v2"
+
 	"github.com/docula-io/docula/state"
 )
 
@@ -19,4 +21,9 @@ type StateManager interface {
 // is used to allow for improved testing.
 type FileSystem interface {
 	Mkdir(name string) error
+}
+
+// Survey represents a type that is able to get various inputs from stdin.
+type Survey interface {
+	Ask(opts ...survey.AskOpt) (Configuration, error)
 }

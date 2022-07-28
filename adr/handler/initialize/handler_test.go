@@ -13,10 +13,16 @@ import (
 	"github.com/docula-io/docula/state"
 )
 
+var defaultConfig = initialize.Configuration{
+	Name:      "bar",
+	IndexType: "timestamp",
+}
+
 func TestHandler(t *testing.T) {
 	type setup struct {
 		stateManager func(ctrl *gomock.Controller) initialize.StateManager
 		fs           func(ctrl *gomock.Controller) initialize.FileSystem
+		survey       func(ctrl *gomock.Controller) initialize.Survey
 	}
 
 	testCases := []struct {
@@ -37,7 +43,9 @@ func TestHandler(t *testing.T) {
 						ADR: adr.State{
 							Directories: []adr.Directory{
 								{
-									Path: "foo/bar",
+									Path:  "foo/bar",
+									Name:  "bar",
+									Index: "timestamp",
 								},
 							},
 						},
@@ -49,6 +57,11 @@ func TestHandler(t *testing.T) {
 					fs := initialize.NewmockFileSystem(ctrl)
 					fs.EXPECT().Mkdir("/foo/bar").Return(nil)
 					return fs
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
 				},
 			},
 			input: "foo/bar",
@@ -66,7 +79,9 @@ func TestHandler(t *testing.T) {
 						ADR: adr.State{
 							Directories: []adr.Directory{
 								{
-									Path: "docs/adrs",
+									Path:  "docs/adrs",
+									Name:  "default",
+									Index: "sequential",
 								},
 							},
 						},
@@ -78,10 +93,14 @@ func TestHandler(t *testing.T) {
 						ADR: adr.State{
 							Directories: []adr.Directory{
 								{
-									Path: "docs/adrs",
+									Path:  "docs/adrs",
+									Name:  "default",
+									Index: "sequential",
 								},
 								{
-									Path: "foo/bar",
+									Path:  "foo/bar",
+									Name:  "bar",
+									Index: "timestamp",
 								},
 							},
 						},
@@ -93,6 +112,11 @@ func TestHandler(t *testing.T) {
 					fs := initialize.NewmockFileSystem(ctrl)
 					fs.EXPECT().Mkdir("/foo/bar").Return(nil)
 					return fs
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
 				},
 			},
 			input: "foo/bar",
@@ -110,7 +134,9 @@ func TestHandler(t *testing.T) {
 						ADR: adr.State{
 							Directories: []adr.Directory{
 								{
-									Path: "baz/foo",
+									Path:  "baz/foo",
+									Name:  "bar",
+									Index: "timestamp",
 								},
 							},
 						},
@@ -122,6 +148,11 @@ func TestHandler(t *testing.T) {
 					fs := initialize.NewmockFileSystem(ctrl)
 					fs.EXPECT().Mkdir("/home/me/projects/baz/foo").Return(nil)
 					return fs
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
 				},
 			},
 			input: "baz/foo",
@@ -139,7 +170,9 @@ func TestHandler(t *testing.T) {
 						ADR: adr.State{
 							Directories: []adr.Directory{
 								{
-									Path: "baz/foo",
+									Path:  "baz/foo",
+									Name:  "bar",
+									Index: "timestamp",
 								},
 							},
 						},
@@ -152,6 +185,11 @@ func TestHandler(t *testing.T) {
 					fs.EXPECT().Mkdir("/home/me/projects/baz/foo").Return(nil)
 					return fs
 				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
+				},
 			},
 			input: "baz/foo",
 			wants: nil,
@@ -162,11 +200,14 @@ func TestHandler(t *testing.T) {
 				stateManager: func(ctrl *gomock.Controller) initialize.StateManager {
 					s := initialize.NewmockStateManager(ctrl)
 					s.EXPECT().NormalizePath("foo/bar").Return("foo/bar", nil)
+					s.EXPECT().StateDir().Return("/", nil)
 					s.EXPECT().Load().Return(state.State{
 						ADR: adr.State{
 							Directories: []adr.Directory{
 								{
-									Path: "foo/bar",
+									Path:  "foo/bar",
+									Name:  "bar",
+									Index: "timestamp",
 								},
 							},
 						},
@@ -176,7 +217,13 @@ func TestHandler(t *testing.T) {
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
+					fs.EXPECT().Mkdir("/foo/bar").Return(nil)
 					return fs
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
 				},
 			},
 			input: "foo/bar",
@@ -191,12 +238,38 @@ func TestHandler(t *testing.T) {
 					return s
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
-					fs := initialize.NewmockFileSystem(ctrl)
-					return fs
+					return initialize.NewmockFileSystem(ctrl)
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					return initialize.NewmockSurvey(ctrl)
 				},
 			},
 			input: "hello/world",
 			wants: os.ErrInvalid,
+		},
+		{
+			name: "failing to load the survey",
+			setup: setup{
+				stateManager: func(ctrl *gomock.Controller) initialize.StateManager {
+					s := initialize.NewmockStateManager(ctrl)
+					s.EXPECT().NormalizePath("hello/world").Return("foo", nil)
+					s.EXPECT().Load().Return(state.State{}, nil)
+					return s
+				},
+				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
+					fs := initialize.NewmockFileSystem(ctrl)
+					return fs
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(
+						initialize.Configuration{}, os.ErrDeadlineExceeded,
+					)
+					return s
+				},
+			},
+			input: "hello/world",
+			wants: os.ErrDeadlineExceeded,
 		},
 		{
 			name: "failing to load the state",
@@ -211,6 +284,10 @@ func TestHandler(t *testing.T) {
 					fs := initialize.NewmockFileSystem(ctrl)
 					return fs
 				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					return s
+				},
 			},
 			input: "hello/world",
 			wants: os.ErrClosed,
@@ -223,11 +300,17 @@ func TestHandler(t *testing.T) {
 					s.EXPECT().NormalizePath("hello/world").Return("foo", nil)
 					s.EXPECT().Load().Return(state.State{}, nil)
 					s.EXPECT().StateDir().Return("", os.ErrProcessDone)
+
 					return s
 				},
 				fs: func(ctrl *gomock.Controller) initialize.FileSystem {
 					fs := initialize.NewmockFileSystem(ctrl)
 					return fs
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
 				},
 			},
 			input: "hello/world",
@@ -248,6 +331,11 @@ func TestHandler(t *testing.T) {
 					fs.EXPECT().Mkdir("/home/user/foo").Return(os.ErrInvalid)
 					return fs
 				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
+				},
 			},
 			input: "hello/world",
 			wants: os.ErrInvalid,
@@ -264,7 +352,9 @@ func TestHandler(t *testing.T) {
 						ADR: adr.State{
 							Directories: []adr.Directory{
 								{
-									Path: "foo",
+									Path:  "foo",
+									Name:  "bar",
+									Index: "timestamp",
 								},
 							},
 						},
@@ -276,6 +366,11 @@ func TestHandler(t *testing.T) {
 					fs := initialize.NewmockFileSystem(ctrl)
 					fs.EXPECT().Mkdir("/home/user/foo").Return(os.ErrExist)
 					return fs
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
 				},
 			},
 			input: "hello/world",
@@ -292,7 +387,9 @@ func TestHandler(t *testing.T) {
 						ADR: adr.State{
 							Directories: []adr.Directory{
 								{
-									Path: "foo",
+									Path:  "foo",
+									Name:  "bar",
+									Index: "timestamp",
 								},
 							},
 						},
@@ -304,6 +401,11 @@ func TestHandler(t *testing.T) {
 					fs := initialize.NewmockFileSystem(ctrl)
 					fs.EXPECT().Mkdir("/home/user/foo").Return(nil)
 					return fs
+				},
+				survey: func(ctrl *gomock.Controller) initialize.Survey {
+					s := initialize.NewmockSurvey(ctrl)
+					s.EXPECT().Ask().Return(defaultConfig, nil)
+					return s
 				},
 			},
 			input: "hello/world",
@@ -320,8 +422,13 @@ func TestHandler(t *testing.T) {
 
 			sm := tt.setup.stateManager(ctrl)
 			fs := tt.setup.fs(ctrl)
+			survey := tt.setup.survey(ctrl)
 
-			h := initialize.New(initialize.WithFileSystem(fs), initialize.WithStateManager(sm))
+			h := initialize.New(
+				initialize.WithFileSystem(fs),
+				initialize.WithStateManager(sm),
+				initialize.WithSurvey(survey),
+			)
 
 			err := h.Handle(context.Background(), tt.input)
 
